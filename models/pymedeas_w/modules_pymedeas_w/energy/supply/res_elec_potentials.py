@@ -1,0 +1,283 @@
+"""
+Module energy.supply.res_elec_potentials
+Translated using PySD version 3.14.2
+"""
+
+@component.add(
+    name="Efficiency_conversion_geot_PE_to_Elec",
+    units="Dmnl",
+    comp_type="Constant",
+    comp_subtype="External",
+    depends_on={"__external__": "_ext_constant_efficiency_conversion_geot_pe_to_elec"},
+)
+def efficiency_conversion_geot_pe_to_elec():
+    """
+    Efficiency of the transformation from geothermal (primary energy) to electricity.
+    """
+    return _ext_constant_efficiency_conversion_geot_pe_to_elec()
+
+
+_ext_constant_efficiency_conversion_geot_pe_to_elec = ExtConstant(
+    r"../energy.xlsx",
+    "Global",
+    "efficiency_conversion_geot_pe_to_elec",
+    {},
+    _root,
+    {},
+    "_ext_constant_efficiency_conversion_geot_pe_to_elec",
+)
+
+
+@component.add(
+    name="max_CSP_on_land_MHa",
+    units="MHa",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"max_solar_on_land_mha": 1, "surface_solar_pv_mha": 1},
+)
+def max_csp_on_land_mha():
+    """
+    Available land for solar CSP taking into account the total land availability for solar and the actual occupation from solar PV on land.
+    """
+    return max_solar_on_land_mha() - surface_solar_pv_mha()
+
+
+@component.add(
+    name='"max_PE_geot-elec_TWth"',
+    units="TWe",
+    comp_type="Constant",
+    comp_subtype="External",
+    depends_on={"__external__": "_ext_constant_max_pe_geotelec_twth"},
+)
+def max_pe_geotelec_twth():
+    """
+    Primary energy of geothermal for electricity.
+    """
+    return _ext_constant_max_pe_geotelec_twth()
+
+
+_ext_constant_max_pe_geotelec_twth = ExtConstant(
+    r"../energy.xlsx",
+    "World",
+    "max_PE_geot_elect_potential",
+    {},
+    _root,
+    {},
+    "_ext_constant_max_pe_geotelec_twth",
+)
+
+
+@component.add(
+    name="max_potential_RES_elec_TWe",
+    units="TW",
+    subscripts=["RES_elec"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal, External",
+    depends_on={
+        "__external__": "_ext_constant_max_potential_res_elec_twe",
+        "efficiency_conversion_geot_pe_to_elec": 1,
+        "max_pe_geotelec_twth": 1,
+        "ej_per_twh": 1,
+        "available_potential_fe_solid_bioe_for_elec": 1,
+        "twe_per_twh": 1,
+        "max_solar_pv_on_land_mha": 1,
+        "power_density_res_elec_twemha": 2,
+        "max_csp_on_land_mha": 1,
+    },
+)
+def max_potential_res_elec_twe():
+    """
+    Maximum potential of RES for electricity per technology considering an optimal Cp.
+    """
+    value = xr.DataArray(
+        np.nan, {"RES_elec": _subscript_dict["RES_elec"]}, ["RES_elec"]
+    )
+    def_subs = xr.zeros_like(value, dtype=bool)
+    def_subs.loc[["hydro"]] = True
+    def_subs.loc[["oceanic"]] = True
+    def_subs.loc[["wind_onshore"]] = True
+    def_subs.loc[["wind_offshore"]] = True
+    value.values[def_subs.values] = _ext_constant_max_potential_res_elec_twe().values[
+        def_subs.values
+    ]
+    value.loc[["geot_elec"]] = (
+        max_pe_geotelec_twth() * efficiency_conversion_geot_pe_to_elec()
+    )
+    value.loc[["solid_bioE_elec"]] = (
+        available_potential_fe_solid_bioe_for_elec() / ej_per_twh() * twe_per_twh()
+    )
+    value.loc[["solar_PV"]] = max_solar_pv_on_land_mha() * float(
+        power_density_res_elec_twemha().loc["solar_PV"]
+    )
+    value.loc[["CSP"]] = max_csp_on_land_mha() * float(
+        power_density_res_elec_twemha().loc["CSP"]
+    )
+    return value
+
+
+_ext_constant_max_potential_res_elec_twe = ExtConstant(
+    r"../energy.xlsx",
+    "World",
+    "max_hydro_potential",
+    {"RES_elec": ["hydro"]},
+    _root,
+    {"RES_elec": _subscript_dict["RES_elec"]},
+    "_ext_constant_max_potential_res_elec_twe",
+)
+
+_ext_constant_max_potential_res_elec_twe.add(
+    r"../energy.xlsx", "World", "max_oceanic_potential", {"RES_elec": ["oceanic"]}
+)
+
+_ext_constant_max_potential_res_elec_twe.add(
+    r"../energy.xlsx",
+    "World",
+    "max_onshore_wind_potential",
+    {"RES_elec": ["wind_onshore"]},
+)
+
+_ext_constant_max_potential_res_elec_twe.add(
+    r"../energy.xlsx",
+    "World",
+    "max_offshore_wind_potential",
+    {"RES_elec": ["wind_offshore"]},
+)
+
+
+@component.add(
+    name="max_potential_RES_elec_TWh",
+    units="TWh/year",
+    subscripts=["RES_elec"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"max_potential_res_elec_twe": 1, "twe_per_twh": 1},
+)
+def max_potential_res_elec_twh():
+    """
+    Maximum potential of RES for electricity per technology considering an optimal Cp.
+    """
+    return max_potential_res_elec_twe() / twe_per_twh()
+
+
+@component.add(
+    name="max_potential_tot_RES_elec_TWh",
+    units="TWh/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "max_potential_res_elec_twh": 1,
+        "max_potential_phs_twe": 1,
+        "twe_per_twh": 1,
+        "share_pes_biogas_for_elec": 1,
+        "ej_per_twh": 1,
+        "max_biogas_ej": 1,
+    },
+)
+def max_potential_tot_res_elec_twh():
+    """
+    Maximum total potential of RES for electricity considering an optimal Cp.
+    """
+    return (
+        sum(
+            max_potential_res_elec_twh().rename({"RES_elec": "RES_elec!"}),
+            dim=["RES_elec!"],
+        )
+        + max_potential_phs_twe() / twe_per_twh()
+        + max_biogas_ej() * share_pes_biogas_for_elec() / ej_per_twh()
+    )
+
+
+@component.add(
+    name="max_solar_on_land_Mha",
+    units="MHa",
+    comp_type="Constant",
+    comp_subtype="External",
+    depends_on={"__external__": "_ext_constant_max_solar_on_land_mha"},
+)
+def max_solar_on_land_mha():
+    """
+    Assumed land availability for solar power plants on land (PV and CSP).
+    """
+    return _ext_constant_max_solar_on_land_mha()
+
+
+_ext_constant_max_solar_on_land_mha = ExtConstant(
+    r"../energy.xlsx",
+    "World",
+    "max_solar_on_land_potential",
+    {},
+    _root,
+    {},
+    "_ext_constant_max_solar_on_land_mha",
+)
+
+
+@component.add(
+    name="max_solar_PV_on_land_MHa",
+    units="MHa",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"max_solar_on_land_mha": 1, "surface_csp_mha": 1},
+)
+def max_solar_pv_on_land_mha():
+    """
+    Available land for solar PV taking into account the total land availability for solar and the actual occupation from CSP.
+    """
+    return max_solar_on_land_mha() - surface_csp_mha()
+
+
+@component.add(
+    name="Percent_remaining_potential_tot_RES_elec",
+    units="percent",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"remaining_potential_tot_res_elec": 1},
+)
+def percent_remaining_potential_tot_res_elec():
+    """
+    Remaining potential available as a percentage.
+    """
+    return remaining_potential_tot_res_elec() * 100
+
+
+@component.add(
+    name="remaining_potential",
+    units="Dmnl",
+    subscripts=["RES_elec"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"max_potential_res_elec_twh": 3, "real_generation_res_elec_twh": 2},
+)
+def remaining_potential():
+    return if_then_else(
+        max_potential_res_elec_twh() > real_generation_res_elec_twh(),
+        lambda: (max_potential_res_elec_twh() - real_generation_res_elec_twh())
+        / max_potential_res_elec_twh(),
+        lambda: xr.DataArray(
+            0, {"RES_elec": _subscript_dict["RES_elec"]}, ["RES_elec"]
+        ),
+    )
+
+
+@component.add(
+    name="remaining_potential_tot_RES_elec",
+    units="Dmnl",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "max_potential_tot_res_elec_twh": 3,
+        "fe_tot_generation_all_res_elec_twh": 2,
+    },
+)
+def remaining_potential_tot_res_elec():
+    """
+    Remaining potential available as a fraction of unity.
+    """
+    return if_then_else(
+        max_potential_tot_res_elec_twh() > fe_tot_generation_all_res_elec_twh(),
+        lambda: (
+            max_potential_tot_res_elec_twh() - fe_tot_generation_all_res_elec_twh()
+        )
+        / max_potential_tot_res_elec_twh(),
+        lambda: 0,
+    )
