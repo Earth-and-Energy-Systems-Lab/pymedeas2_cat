@@ -14,7 +14,7 @@ def ccs_cp():
     """
     Capacity factor of the carbon capture and storage technologies
     """
-    return xr.DataArray(0.9, {"CCS_tech": _subscript_dict["CCS_tech"]}, ["CCS_tech"])
+    return xr.DataArray(1, {"CCS_tech": _subscript_dict["CCS_tech"]}, ["CCS_tech"])
 
 
 @component.add(
