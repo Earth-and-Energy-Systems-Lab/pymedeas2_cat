@@ -1,12 +1,12 @@
 """
 Module energy.supply.hydrogen_and_synthetic
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
-    name="efficiency_electricity_to_synthetic",
+    name="efficiency electricity to synthetic",
     units="Dmnl",
-    subscripts=["E_to_synthetic"],
+    subscripts=["E to synthetic"],
     comp_type="Constant",
     comp_subtype="External",
     depends_on={"__external__": "_ext_constant_efficiency_electricity_to_synthetic"},
@@ -19,17 +19,17 @@ _ext_constant_efficiency_electricity_to_synthetic = ExtConstant(
     r"../energy.xlsx",
     "Catalonia",
     "ETS*",
-    {"E_to_synthetic": _subscript_dict["E_to_synthetic"]},
+    {"E to synthetic": _subscript_dict["E to synthetic"]},
     _root,
-    {"E_to_synthetic": _subscript_dict["E_to_synthetic"]},
+    {"E to synthetic": _subscript_dict["E to synthetic"]},
     "_ext_constant_efficiency_electricity_to_synthetic",
 )
 
 
 @component.add(
-    name="Electricity_consumption_for_synthetic_fuels",
+    name="Electricity consumption for synthetic fuels",
     units="EJ/year",
-    subscripts=["E_to_synthetic"],
+    subscripts=["E to synthetic"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
@@ -42,9 +42,9 @@ def electricity_consumption_for_synthetic_fuels():
 
 
 @component.add(
-    name="Electricity_demand_for_synthetic_fuels",
+    name="Electricity demand for synthetic fuels",
     units="EJ/year",
-    subscripts=["E_to_synthetic"],
+    subscripts=["E to synthetic"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 1, "policy_ets": 1, "efficiency_electricity_to_synthetic": 1},
@@ -54,9 +54,9 @@ def electricity_demand_for_synthetic_fuels():
 
 
 @component.add(
-    name="policy_ETS",
+    name="policy ETS",
     units="EJ/year",
-    subscripts=["E_to_synthetic"],
+    subscripts=["E to synthetic"],
     comp_type="Lookup",
     comp_subtype="External",
     depends_on={
@@ -73,17 +73,17 @@ _ext_lookup_policy_ets = ExtLookup(
     "NZP",
     "year_synthetic",
     "p_ETS",
-    {"E_to_synthetic": _subscript_dict["E_to_synthetic"]},
+    {"E to synthetic": _subscript_dict["E to synthetic"]},
     _root,
-    {"E_to_synthetic": _subscript_dict["E_to_synthetic"]},
+    {"E to synthetic": _subscript_dict["E to synthetic"]},
     "_ext_lookup_policy_ets",
 )
 
 
 @component.add(
-    name="Synthethic_fuel_generation",
+    name="Synthethic fuel generation",
     units="EJ/year",
-    subscripts=["E_to_synthetic"],
+    subscripts=["E to synthetic"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
@@ -99,9 +99,9 @@ def synthethic_fuel_generation():
 
 
 @component.add(
-    name="Synthethic_fuel_generation_delayed",
+    name="Synthethic fuel generation delayed",
     units="EJ/year",
-    subscripts=["E_to_synthetic"],
+    subscripts=["E to synthetic"],
     comp_type="Stateful",
     comp_subtype="DelayFixed",
     depends_on={"_delayfixed_synthethic_fuel_generation_delayed": 1},
@@ -120,7 +120,7 @@ _delayfixed_synthethic_fuel_generation_delayed = DelayFixed(
     lambda: synthethic_fuel_generation(),
     lambda: time_step(),
     lambda: xr.DataArray(
-        0, {"E_to_synthetic": _subscript_dict["E_to_synthetic"]}, ["E_to_synthetic"]
+        0, {"E to synthetic": _subscript_dict["E to synthetic"]}, ["E to synthetic"]
     ),
     time_step,
     "_delayfixed_synthethic_fuel_generation_delayed",
@@ -128,7 +128,7 @@ _delayfixed_synthethic_fuel_generation_delayed = DelayFixed(
 
 
 @component.add(
-    name="Total_electricity_demand_for_synthetic",
+    name="Total electricity demand for synthetic",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -137,14 +137,14 @@ _delayfixed_synthethic_fuel_generation_delayed = DelayFixed(
 def total_electricity_demand_for_synthetic():
     return sum(
         electricity_demand_for_synthetic_fuels().rename(
-            {"E_to_synthetic": "E_to_synthetic!"}
+            {"E to synthetic": "E to synthetic!"}
         ),
-        dim=["E_to_synthetic!"],
+        dim=["E to synthetic!"],
     )
 
 
 @component.add(
-    name="total_synthetic_fuel_generation",
+    name="total synthetic fuel generation",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -152,6 +152,6 @@ def total_electricity_demand_for_synthetic():
 )
 def total_synthetic_fuel_generation():
     return sum(
-        synthethic_fuel_generation().rename({"E_to_synthetic": "E_to_synthetic!"}),
-        dim=["E_to_synthetic!"],
+        synthethic_fuel_generation().rename({"E to synthetic": "E to synthetic!"}),
+        dim=["E to synthetic!"],
     )

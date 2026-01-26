@@ -1,10 +1,10 @@
 """
 Module energy.supply.net_energy_fluxes
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
-    name="historic_coal_imports",
+    name="historic coal imports",
     units="EJ/year",
     comp_type="Lookup",
     comp_subtype="External",
@@ -30,7 +30,7 @@ _ext_lookup_historic_coal_imports = ExtLookup(
 
 
 @component.add(
-    name="historic_gas_imports",
+    name="historic gas imports",
     units="EJ/year",
     comp_type="Lookup",
     comp_subtype="External",
@@ -56,7 +56,7 @@ _ext_lookup_historic_gas_imports = ExtLookup(
 
 
 @component.add(
-    name="historic_oil_imports",
+    name="historic oil imports",
     units="EJ/year",
     comp_type="Lookup",
     comp_subtype="External",
@@ -82,7 +82,7 @@ _ext_lookup_historic_oil_imports = ExtLookup(
 
 
 @component.add(
-    name="last_historical_year",
+    name="last historical year",
     units="year",
     comp_type="Constant",
     comp_subtype="Normal",
@@ -92,7 +92,7 @@ def last_historical_year():
 
 
 @component.add(
-    name="maximum_coal_available_in_CAT",
+    name="maximum coal available in CAT",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -103,7 +103,7 @@ def maximum_coal_available_in_cat():
 
 
 @component.add(
-    name="maximum_gas_available_in_CAT",
+    name="maximum gas available in CAT",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -114,7 +114,7 @@ def maximum_gas_available_in_cat():
 
 
 @component.add(
-    name="maximum_oil_available_in_CAT",
+    name="maximum oil available in CAT",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -125,16 +125,16 @@ def maximum_oil_available_in_cat():
 
 
 @component.add(
-    name="net_coal_flux_CAT",
+    name="net coal flux CAT",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "ped_coal_ej": 1,
-        "maximum_coal_available_in_cat": 1,
-        "projected_net_coal_flux_cat": 1,
         "time": 3,
+        "projected_net_coal_flux_cat": 1,
         "last_historical_year": 1,
+        "maximum_coal_available_in_cat": 1,
         "historic_coal_imports": 1,
     },
 )
@@ -157,17 +157,17 @@ def net_coal_flux_cat():
 
 
 @component.add(
-    name="net_gas_flux_CAT",
+    name="net gas flux CAT",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "ped_nat_gas_ej": 1,
-        "projected_net_gas_flux_cat": 1,
+        "time": 3,
         "historic_gas_imports": 1,
         "maximum_gas_available_in_cat": 1,
-        "time": 3,
         "last_historical_year": 1,
+        "projected_net_gas_flux_cat": 1,
     },
 )
 def net_gas_flux_cat():
@@ -189,17 +189,17 @@ def net_gas_flux_cat():
 
 
 @component.add(
-    name="net_oil_flux_CAT",
+    name="net oil flux CAT",
     units="EJ/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "ped_total_oil_ej": 1,
-        "historic_oil_imports": 1,
-        "projected_net_oil_flux_cat": 1,
         "time": 3,
+        "projected_net_oil_flux_cat": 1,
         "maximum_oil_available_in_cat": 1,
         "last_historical_year": 1,
+        "historic_oil_imports": 1,
     },
 )
 def net_oil_flux_cat():
@@ -221,7 +221,7 @@ def net_oil_flux_cat():
 
 
 @component.add(
-    name="projected_net_coal_flux_CAT",
+    name="projected net coal flux CAT",
     units="EJ/year",
     comp_type="Lookup",
     comp_subtype="External",
@@ -247,7 +247,7 @@ _ext_lookup_projected_net_coal_flux_cat = ExtLookup(
 
 
 @component.add(
-    name="projected_net_gas_flux_CAT",
+    name="projected net gas flux CAT",
     units="EJ/year",
     comp_type="Lookup",
     comp_subtype="External",
@@ -273,7 +273,7 @@ _ext_lookup_projected_net_gas_flux_cat = ExtLookup(
 
 
 @component.add(
-    name="projected_net_oil_flux_CAT",
+    name="projected net oil flux CAT",
     units="EJ/year",
     comp_type="Lookup",
     comp_subtype="External",
