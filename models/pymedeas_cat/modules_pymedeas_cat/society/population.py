@@ -4,7 +4,7 @@ Translated using PySD version 3.14.3
 """
 
 @component.add(
-    name="Annual population growth rate",
+    name="Annual_population_growth_rate",
     units="Dmnl/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -15,7 +15,7 @@ def annual_population_growth_rate():
 
 
 @component.add(
-    name="historic population",
+    name="historic_population",
     units="people",
     comp_type="Lookup",
     comp_subtype="External",
@@ -44,7 +44,7 @@ _ext_lookup_historic_population = ExtLookup(
 
 
 @component.add(
-    name="initial population",
+    name="initial_population",
     units="people",
     comp_type="Constant",
     comp_subtype="External",
@@ -69,7 +69,7 @@ _ext_constant_initial_population = ExtConstant(
 
 
 @component.add(
-    name="P timeseries pop growth rate",
+    name="P_timeseries_pop_growth_rate",
     units="Dmnl/year",
     comp_type="Data",
     comp_subtype="External",
@@ -100,7 +100,7 @@ _ext_data_p_timeseries_pop_growth_rate = ExtData(
 
 
 @component.add(
-    name="pop variation",
+    name="pop_variation",
     units="people/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
@@ -148,18 +148,18 @@ _integ_population = Integ(
 
 
 @component.add(
-    name="population sensitivity factor", comp_type="Constant", comp_subtype="Normal"
+    name="population_sensitivity_factor", comp_type="Constant", comp_subtype="Normal"
 )
 def population_sensitivity_factor():
     return 0
 
 
 @component.add(
-    name="variation historic pop",
+    name="variation_historic_pop",
     units="people/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 3, "time_step": 2, "historic_population": 2},
+    depends_on={"time": 3, "historic_population": 2, "time_step": 2},
 )
 def variation_historic_pop():
     """
