@@ -1,6 +1,6 @@
 """
 Module climate.total_co2_emissions
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -130,6 +130,16 @@ def aux_total_co2_emissions_gtco2():
 
 
 @component.add(
+    name="biofuels_sensitivity_factor",
+    units="GtCO2/EJ",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def biofuels_sensitivity_factor():
+    return 0
+
+
+@component.add(
     name="CO2_emissions_BioE_and_Waste",
     units="GtCO2/year",
     subscripts=["final_sources"],
@@ -157,7 +167,7 @@ def co2_emissions_bioe_and_waste():
     name="CO2_emissions_biofuels",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={"gtco2_per_ej_biofuels": 1, "oil_liquids_saved_by_biofuels_ej": 1},
 )
@@ -178,7 +188,7 @@ def co2_emissions_biofuels():
     name="CO2_emissions_biogas",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_biogas": 3,
@@ -203,7 +213,7 @@ def co2_emissions_biogas():
     name="CO2_emissions_biomass",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_traditional_biomass": 1,
@@ -227,7 +237,7 @@ def co2_emissions_biomass():
     name="CO2_emissions_coal",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_coal": 3,
@@ -285,15 +295,15 @@ def co2_emissions_fossil_fuels():
     name="CO2_emissions_gas",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_gas": 3,
         "pec_nat_gas": 4,
         "share_nat_gas_for_elec_emissions_relevant": 1,
         "share_nat_gas_for_heat_emissions_relevant": 1,
-        "share_nat_gas_for_gtl_emissions_relevant": 1,
         "gtco2_per_ej_gtl": 1,
+        "share_nat_gas_for_gtl_emissions_relevant": 1,
         "share_nat_gas_for_fc_emissions_relevant": 1,
     },
 )
@@ -321,7 +331,7 @@ def co2_emissions_gas():
     name="CO2_emissions_oil",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_oil": 3,
@@ -353,7 +363,7 @@ def co2_emissions_oil():
     name="CO2_emissions_peat",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={"pes_peat": 1, "gtco2_per_ej_peat": 1},
 )
@@ -387,7 +397,7 @@ def co2_emissions_per_fuel():
     name="CO2_emissions_solid_bioE",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_solid_bioe": 3,
@@ -418,7 +428,7 @@ def co2_emissions_solid_bioe():
     name="CO2_emissions_waste",
     units="GtCO2/year",
     subscripts=["final_sources"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={
         "gtco2_per_ej_waste": 3,
@@ -644,9 +654,9 @@ _ext_constant_gtco2_per_ej_gtl = ExtConstant(
     depends_on={
         "share_conv_vs_total_oil_extraction": 2,
         "gtco2_per_ej_conv_oil": 1,
-        "adapt_emissions_shale_oil": 1,
-        "gtco2_per_ej_unconv_oil": 2,
         "gtco2_per_ej_shale_oil": 1,
+        "gtco2_per_ej_unconv_oil": 2,
+        "adapt_emissions_shale_oil": 1,
     },
 )
 def gtco2_per_ej_oil():
@@ -706,27 +716,29 @@ _ext_constant_gtco2_per_ej_shale_oil = ExtConstant(
 @component.add(
     name="GtCO2_per_EJ_solid_BioE",
     units="GtCO2/EJ",
-    comp_type="Constant",
+    comp_type="Auxiliary",
     comp_subtype="Normal",
+    depends_on={"biofuels_sensitivity_factor": 1},
 )
 def gtco2_per_ej_solid_bioe():
     """
     GET DIRECT CONSTANTS('../climate.xlsx', 'Global', 'co2_solid_bioe')
     """
-    return 0
+    return 0 + biofuels_sensitivity_factor()
 
 
 @component.add(
     name="GtCO2_per_EJ_traditional_biomass",
     units="GtCO2/EJ",
-    comp_type="Constant",
+    comp_type="Auxiliary",
     comp_subtype="Normal",
+    depends_on={"biofuels_sensitivity_factor": 1},
 )
 def gtco2_per_ej_traditional_biomass():
     """
     GET DIRECT CONSTANTS('../climate.xlsx', 'Global', 'co2_traditional_biomass')
     """
-    return 0
+    return 0 + biofuels_sensitivity_factor()
 
 
 @component.add(

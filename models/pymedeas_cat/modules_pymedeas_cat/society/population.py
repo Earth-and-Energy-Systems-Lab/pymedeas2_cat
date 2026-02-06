@@ -1,6 +1,6 @@
 """
 Module society.population
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -8,10 +8,10 @@ Translated using PySD version 3.14.2
     units="Dmnl/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"p_timeseries_pop_growth_rate": 1},
+    depends_on={"p_timeseries_pop_growth_rate": 1, "population_sensitivity_factor": 1},
 )
 def annual_population_growth_rate():
-    return p_timeseries_pop_growth_rate()
+    return p_timeseries_pop_growth_rate() + population_sensitivity_factor()
 
 
 @component.add(
@@ -148,11 +148,18 @@ _integ_population = Integ(
 
 
 @component.add(
+    name="population_sensitivity_factor", comp_type="Constant", comp_subtype="Normal"
+)
+def population_sensitivity_factor():
+    return 0
+
+
+@component.add(
     name="variation_historic_pop",
     units="people/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 3, "historic_population": 2, "time_step": 2},
+    depends_on={"time": 3, "time_step": 2, "historic_population": 2},
 )
 def variation_historic_pop():
     """

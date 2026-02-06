@@ -1,6 +1,6 @@
 """
 Module energy.supply.res_elec_capacities_and_generat
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -124,7 +124,7 @@ _ext_lookup_curtailment_and_storage_share_variable_res = ExtLookup(
     name="curtailment_RES",
     units="Dmnl",
     subscripts=["RES_elec"],
-    comp_type="Constant, Auxiliary",
+    comp_type="Auxiliary, Constant",
     comp_subtype="Normal",
     depends_on={"time": 4, "curtailment_and_storage_share_variable_res": 4},
 )
@@ -141,24 +141,6 @@ def curtailment_res():
     value.loc[["solar_PV"]] = curtailment_and_storage_share_variable_res(time())
     value.loc[["CSP"]] = curtailment_and_storage_share_variable_res(time())
     return value
-
-
-@component.add(
-    name="curtailment_variables_res",
-    units="TWh/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "potential_tot_generation_res_elec_twh": 1,
-        "curtailment_and_storage_share_variable_res": 1,
-        "time": 1,
-    },
-)
-def curtailment_variables_res():
-    return (
-        potential_tot_generation_res_elec_twh()
-        * curtailment_and_storage_share_variable_res(time())
-    )
 
 
 @component.add(
@@ -278,11 +260,13 @@ _delayfixed_installed_capacity_res_elec_delayed = DelayFixed(
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
-        "time": 5,
+        "time": 4,
         "end_hist_data": 5,
         "table_hist_capacity_res_elec": 3,
-        "p_power": 2,
         "start_year_p_growth_res_elec": 3,
+        "renewable_sensitivity_factor": 1,
+        "p_power": 1,
+        "p_power_table": 1,
     },
 )
 def installed_capacity_res_elec_policies():
@@ -294,13 +278,14 @@ def installed_capacity_res_elec_policies():
             lambda: table_hist_capacity_res_elec(end_hist_data())
             + (
                 (
-                    p_power(start_year_p_growth_res_elec())
+                    p_power_table(start_year_p_growth_res_elec())
+                    * renewable_sensitivity_factor()
                     - table_hist_capacity_res_elec(end_hist_data())
                 )
                 / (start_year_p_growth_res_elec() - end_hist_data())
             )
             * (time() - end_hist_data()),
-            lambda: p_power(time()),
+            lambda: p_power(),
         ),
     )
 
@@ -388,18 +373,30 @@ def new_res_installed_capacity():
     name="P_power",
     units="TW",
     subscripts=["RES_elec"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"time": 1, "p_power_table": 1, "renewable_sensitivity_factor": 1},
+)
+def p_power():
+    return p_power_table(time()) * renewable_sensitivity_factor()
+
+
+@component.add(
+    name="P_power_table",
+    units="TW",
+    subscripts=["RES_elec"],
     comp_type="Lookup",
     comp_subtype="External",
     depends_on={
-        "__external__": "_ext_lookup_p_power",
-        "__lookup__": "_ext_lookup_p_power",
+        "__external__": "_ext_lookup_p_power_table",
+        "__lookup__": "_ext_lookup_p_power_table",
     },
 )
-def p_power(x, final_subs=None):
-    return _ext_lookup_p_power(x, final_subs)
+def p_power_table(x, final_subs=None):
+    return _ext_lookup_p_power_table(x, final_subs)
 
 
-_ext_lookup_p_power = ExtLookup(
+_ext_lookup_p_power_table = ExtLookup(
     r"../../scenarios/scen_cat.xlsx",
     "NZP",
     "year_RES_power",
@@ -407,7 +404,7 @@ _ext_lookup_p_power = ExtLookup(
     {"RES_elec": _subscript_dict["RES_elec"]},
     _root,
     {"RES_elec": _subscript_dict["RES_elec"]},
-    "_ext_lookup_p_power",
+    "_ext_lookup_p_power_table",
 )
 
 
@@ -456,9 +453,29 @@ def potential_res_elec_after_intermitt_twh():
     units="TWh/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"potential_generation_res_elec_twh": 1},
+    depends_on={
+        "potential_tot_generation_res_elec_twh": 1,
+        "time": 1,
+        "curtailment_and_storage_share_variable_res": 1,
+    },
 )
 def potential_tot_generation_after_curtailment_res_elec_twh():
+    return potential_tot_generation_res_elec_twh() * (
+        1 - curtailment_and_storage_share_variable_res(time())
+    )
+
+
+@component.add(
+    name="potential_tot_generation_RES_elec_TWh",
+    units="TWh/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"potential_generation_res_elec_twh": 1},
+)
+def potential_tot_generation_res_elec_twh():
+    """
+    Total potential generation of electricity from RES given the installed capacity.
+    """
     return sum(
         potential_generation_res_elec_twh().rename({"RES_elec": "RES_elec!"}),
         dim=["RES_elec!"],
@@ -474,9 +491,9 @@ def potential_tot_generation_after_curtailment_res_elec_twh():
     depends_on={
         "time": 1,
         "cp_res_elec": 1,
-        "twe_per_twh": 1,
         "real_generation_res_elec_twh": 1,
         "replaced_capacity_res_elec_tw": 2,
+        "twe_per_twh": 1,
     },
 )
 def real_cp_res_elec():
@@ -541,6 +558,16 @@ def remaining_potential_res_elec_after_intermitt():
             0, {"RES_elec": _subscript_dict["RES_elec"]}, ["RES_elec"]
         ),
     )
+
+
+@component.add(
+    name="renewable_sensitivity_factor",
+    units="Dmnl",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def renewable_sensitivity_factor():
+    return 1
 
 
 @component.add(
@@ -812,7 +839,7 @@ def total_time_planconstr_res_elec():
     subscripts=["RES_elec"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "replaced_capacity_res_elec_tw": 1, "lifetime_res_elec": 1},
+    depends_on={"time": 1, "lifetime_res_elec": 1, "replaced_capacity_res_elec_tw": 1},
 )
 def wear_res_elec():
     """

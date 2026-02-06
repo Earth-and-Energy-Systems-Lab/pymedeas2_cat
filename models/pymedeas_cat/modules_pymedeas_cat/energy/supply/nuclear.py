@@ -1,6 +1,6 @@
 """
 Module energy.supply.nuclear
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -365,8 +365,8 @@ def new_nuclear_capacity_under_planning():
     depends_on={
         "time": 1,
         "demand_elec_nre_twh": 1,
-        "p_nuclear_elec_gen": 1,
         "installed_capacity_nuclear_tw": 1,
+        "p_nuclear_elec_gen": 1,
         "effects_shortage_uranium": 1,
         "cp_limit_nuclear": 1,
     },
@@ -432,10 +432,10 @@ def nuclear_capacity_phaseout():
         "time": 3,
         "time_step": 2,
         "cp_nuclear": 1,
-        "twe_per_twh": 1,
         "historic_nuclear_generation_twh": 2,
-        "time_construction_nuclear": 1,
+        "twe_per_twh": 1,
         "planned_nuclear_capacity_tw": 1,
+        "time_construction_nuclear": 1,
     },
 )
 def nuclear_capacity_under_construction():

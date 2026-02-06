@@ -1,6 +1,6 @@
 """
 Module energy.demand.fe_intensity_households
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -186,8 +186,8 @@ def energy_intensity_of_households():
     comp_subtype="Normal",
     depends_on={
         "activate_bottom_up_method": 3,
-        "change_total_intensity_to_rest": 3,
         "evol_final_energy_intensity_h": 8,
+        "change_total_intensity_to_rest": 3,
     },
 )
 def energy_intensity_of_households_rest():
@@ -454,14 +454,14 @@ def increase_of_intensity_due_to_change_energy_technology_net_h():
     depends_on={
         "time": 2,
         "historic_rate_final_energy_intensity": 1,
-        "variation_energy_intensity_target_h": 1,
-        "available_improvement_efficiency_h": 4,
-        "initial_energy_intensity_1995": 4,
-        "year_energy_intensity_target": 1,
         "evol_final_energy_intensity_h": 4,
-        "choose_final_sectoral_energy_intensities_evolution_method": 2,
         "efficiency_energy_acceleration": 12,
+        "year_energy_intensity_target": 1,
+        "choose_final_sectoral_energy_intensities_evolution_method": 2,
         "historic_mean_rate_energy_intensity": 6,
+        "initial_energy_intensity_1995": 4,
+        "available_improvement_efficiency_h": 4,
+        "variation_energy_intensity_target_h": 1,
     },
 )
 def inertial_rate_energy_intensity_h_top_down():
@@ -886,11 +886,11 @@ def transport_households_final_energy_demand():
     comp_subtype="Normal",
     depends_on={
         "choose_energy_intensity_target_method": 1,
-        "energy_intensity_target": 1,
-        "year_energy_intensity_target": 2,
         "evol_final_energy_intensity_h": 2,
         "final_year_energy_intensity_target": 4,
         "time": 6,
+        "year_energy_intensity_target": 2,
+        "energy_intensity_target": 1,
         "pct_change_energy_intensity_target": 1,
         "final_energy_intensity_2020_h": 1,
     },

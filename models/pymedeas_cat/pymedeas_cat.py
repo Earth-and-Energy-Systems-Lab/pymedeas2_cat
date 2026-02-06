@@ -8,21 +8,21 @@ import numpy as np
 import xarray as xr
 
 from pysd.py_backend.functions import (
-    xidz,
-    if_then_else,
+    zidz,
+    integer,
     invert_matrix,
     sum,
-    integer,
+    xidz,
     step,
-    zidz,
+    if_then_else,
 )
-from pysd.py_backend.statefuls import SampleIfTrue, Integ, DelayFixed, Smooth, Initial
-from pysd.py_backend.external import ExtData, ExtLookup, ExtConstant
+from pysd.py_backend.statefuls import Initial, SampleIfTrue, Smooth, DelayFixed, Integ
+from pysd.py_backend.external import ExtConstant, ExtData, ExtLookup
 from pysd.py_backend.data import TabData
-from pysd.py_backend.utils import load_modules, load_model_data
+from pysd.py_backend.utils import load_model_data, load_modules
 from pysd import Component
 
-__pysd_version__ = "3.14.2"
+__pysd_version__ = "3.14.3"
 
 __data = {"scope": None, "time": lambda: 0}
 
@@ -111,20 +111,3 @@ def time_step():
 
 # load modules from modules_pymedeas_cat directory
 exec(load_modules("modules_pymedeas_cat", _modules, _root, []))
-
-
-@component.add(
-    name="potential_tot_generation_RES_elec_TWh",
-    units="TWh/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"potential_generation_res_elec_twh": 1},
-)
-def potential_tot_generation_res_elec_twh():
-    """
-    Total potential generation of electricity from RES given the installed capacity.
-    """
-    return sum(
-        potential_generation_res_elec_twh().rename({"RES_elec": "RES_elec!"}),
-        dim=["RES_elec!"],
-    )

@@ -1,6 +1,6 @@
 """
 Module energy.supply.solar_potential_in_urban_areas
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(

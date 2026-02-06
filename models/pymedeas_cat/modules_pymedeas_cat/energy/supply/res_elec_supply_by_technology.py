@@ -1,6 +1,6 @@
 """
 Module energy.supply.res_elec_supply_by_technology
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -90,8 +90,8 @@ def fes_elec_from_res_with_priority():
         "time": 1,
         "fe_elec_demand_exports_twh": 2,
         "real_fe_demand_nre": 2,
-        "demand_elec_nre_twh": 2,
         "total_fe_elec_generation_twh_eu28": 2,
+        "demand_elec_nre_twh": 2,
     },
 )
 def importsexports_electricity():

@@ -1,6 +1,6 @@
 """
 Module economy.households_economic_demand_and_investment
-Translated using PySD version 3.14.2
+Translated using PySD version 3.14.3
 """
 
 @component.add(
@@ -113,8 +113,8 @@ _ext_constant_beta_1_hd = ExtConstant(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "gross_fixed_capital_formation": 1,
         "real_gfcf_by_sector": 1,
+        "gross_fixed_capital_formation": 1,
         "nvs_1_year": 1,
     },
 )
@@ -261,8 +261,8 @@ _integ_household_demand = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "real_household_demand_by_sector": 1,
         "household_demand": 1,
+        "real_household_demand_by_sector": 1,
         "nvs_1_year": 1,
     },
 )
@@ -362,13 +362,13 @@ def unit_correction_economic():
     depends_on={
         "gross_fixed_capital_formation": 1,
         "variation_historic_gfcf": 1,
-        "cc_total": 2,
-        "unit_correction_economic": 2,
-        "variation_cc": 1,
-        "nvs_1_year": 1,
-        "time": 1,
-        "beta_1_gfcf": 2,
         "beta_0_gfcf": 1,
+        "unit_correction_economic": 2,
+        "time": 1,
+        "nvs_1_year": 1,
+        "beta_1_gfcf": 2,
+        "variation_cc": 1,
+        "cc_total": 2,
     },
 )
 def variation_gfcf():
@@ -433,12 +433,12 @@ def variation_historic_gfcf():
     depends_on={
         "time": 1,
         "variation_historic_demand": 1,
+        "lc": 2,
         "unit_correction_economic": 2,
         "nvs_1_year": 1,
-        "lc": 2,
-        "variation_lc": 1,
-        "beta_1_hd": 2,
         "beta_0_hd": 1,
+        "beta_1_hd": 2,
+        "variation_lc": 1,
     },
 )
 def variation_household_demand():
