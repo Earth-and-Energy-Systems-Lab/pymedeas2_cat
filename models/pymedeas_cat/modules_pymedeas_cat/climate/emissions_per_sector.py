@@ -24,20 +24,13 @@ def ch4_emissions_households_and_sectors():
 @component.add(
     name="CO2_emissions_from_year",
     units="GtCO2/year",
-    subscripts=["SECTORS_and_HOUSEHOLDS"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "year_co2": 1, "co2_emissions_households_and_sectors": 1},
+    depends_on={"time": 1, "year_co2": 1, "total_co2_emissions_gtco2": 1},
 )
 def co2_emissions_from_year():
     return if_then_else(
-        time() < year_co2(),
-        lambda: xr.DataArray(
-            0,
-            {"SECTORS_and_HOUSEHOLDS": _subscript_dict["SECTORS_and_HOUSEHOLDS"]},
-            ["SECTORS_and_HOUSEHOLDS"],
-        ),
-        lambda: co2_emissions_households_and_sectors(),
+        time() <= year_co2(), lambda: 0, lambda: total_co2_emissions_gtco2()
     )
 
 
@@ -132,7 +125,6 @@ def co2_emissions_sectors_and_households_including_process():
 @component.add(
     name="cumulated_CO2_emissions",
     units="GtCO2",
-    subscripts=["SECTORS_and_HOUSEHOLDS"],
     comp_type="Stateful",
     comp_subtype="Integ",
     depends_on={"_integ_cumulated_co2_emissions": 1},
@@ -148,13 +140,7 @@ def cumulated_co2_emissions():
 
 
 _integ_cumulated_co2_emissions = Integ(
-    lambda: co2_emissions_from_year(),
-    lambda: xr.DataArray(
-        0,
-        {"SECTORS_and_HOUSEHOLDS": _subscript_dict["SECTORS_and_HOUSEHOLDS"]},
-        ["SECTORS_and_HOUSEHOLDS"],
-    ),
-    "_integ_cumulated_co2_emissions",
+    lambda: co2_emissions_from_year(), lambda: 0, "_integ_cumulated_co2_emissions"
 )
 
 
@@ -277,12 +263,7 @@ def total_co2_emissions_gtco2_before_ccs():
     depends_on={"cumulated_co2_emissions": 1},
 )
 def total_cumulated_co2_emissions():
-    return sum(
-        cumulated_co2_emissions().rename(
-            {"SECTORS_and_HOUSEHOLDS": "SECTORS_and_HOUSEHOLDS!"}
-        ),
-        dim=["SECTORS_and_HOUSEHOLDS!"],
-    )
+    return cumulated_co2_emissions()
 
 
 @component.add(
@@ -308,4 +289,4 @@ def tots_fed():
     name="year_co2", units="year", comp_type="Constant", comp_subtype="Normal"
 )
 def year_co2():
-    return 1995
+    return 2021

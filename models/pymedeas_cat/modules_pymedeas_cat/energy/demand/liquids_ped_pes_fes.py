@@ -519,8 +519,8 @@ def share_liquids_dem_for_heatnc():
     depends_on={
         "required_fed_by_liquids": 1,
         "ped_liquids": 1,
-        "energy_distr_losses_ff": 1,
         "transformation_ff_losses_ej": 1,
+        "energy_distr_losses_ff": 1,
     },
 )
 def share_liquids_for_final_energy():
@@ -543,8 +543,8 @@ def share_liquids_for_final_energy():
     depends_on={
         "nonenergy_use_demand_by_final_fuel": 1,
         "ped_liquids": 1,
-        "energy_distr_losses_ff": 1,
         "transformation_ff_losses_ej": 1,
+        "energy_distr_losses_ff": 1,
     },
 )
 def share_liquids_for_nonenergy_use():
@@ -594,8 +594,8 @@ def share_oil_elec_plants():
         "ped_oil_elec_plants_ej": 1,
         "ped_oil_for_chp_plants_ej": 1,
         "share_elec_gen_in_chp": 1,
-        "self_consuption_energy_sector": 1,
         "ped_total_oil_ej": 1,
+        "self_consuption_energy_sector": 1,
     },
 )
 def share_oil_for_elec_emissions_relevant():
@@ -658,8 +658,8 @@ def share_oil_for_heat_chp_plants():
         "ped_ff_heatnc": 1,
         "ped_oil_for_chp_plants_ej": 1,
         "share_elec_gen_in_chp": 1,
-        "self_consuption_energy_sector": 1,
         "ped_total_oil_ej": 1,
+        "self_consuption_energy_sector": 1,
     },
 )
 def share_oil_for_heat_emissions_relevant():
